@@ -1,16 +1,24 @@
 import { Connection, clusterApiUrl, PublicKey, Transaction, Keypair, SystemProgram } from '@solana/web3.js';
 import { MINT_SIZE, TOKEN_PROGRAM_ID, createAssociatedTokenAccount, createInitializeAccountInstruction, createInitializeMintInstruction, createMint, getAccountLenForMint, getMinimumBalanceForRentExemptAccount, getMinimumBalanceForRentExemptMint, getMint, getOrCreateAssociatedTokenAccount, mintTo } from '@solana/spl-token';
 
+interface MintResult {
+    mint: PublicKey;
+    tokenAccount: PublicKey;
+    transactionSignature: string;
+}
+
 async function newMint(
     connection: Connection,
     ownerKeyPair: Keypair,
-): Promise<any> {
+    decimals: number,
+    amount: number
+): Promise<MintResult> {
     const mint = await createMint(
         connection,
         ownerKeyPair, // payer
         ownerKeyPair.publicKey, // mint authority
         ownerKeyPair.publicKey, // freeze authority
-        10 // digits of token
+        decimals // decimals of token
     );
 
     // token account (associated with minting account)
@@ -34,12 +42,12 @@ async function newMint(
         mint,
         tokenAccount.address,
         ownerKeyPair,
-        100
+        amount
     )
 
-    return {
-        mint,
+    return Promise.resolve({
+        mint: mint,
         tokenAccount: tokenAccount.address,
-        transactionSignature
-    };
+        transactionSignature: transactionSignature
+    });
 }

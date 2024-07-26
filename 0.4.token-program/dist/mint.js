@@ -10,12 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const spl_token_1 = require("@solana/spl-token");
-function newMint(connection, ownerKeyPair) {
+function newMint(connection, ownerKeyPair, decimals, amount) {
     return __awaiter(this, void 0, void 0, function* () {
         const mint = yield (0, spl_token_1.createMint)(connection, ownerKeyPair, // payer
         ownerKeyPair.publicKey, // mint authority
         ownerKeyPair.publicKey, // freeze authority
-        10 // digits of token
+        decimals // decimals of token
         );
         // token account (associated with minting account)
         const tokenAccount = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, ownerKeyPair, // payer
@@ -27,11 +27,11 @@ function newMint(connection, ownerKeyPair) {
         //     mint,
         //     ownerKeyPair.publicKey
         // )
-        const transactionSignature = yield (0, spl_token_1.mintTo)(connection, ownerKeyPair, mint, tokenAccount.address, ownerKeyPair, 100);
-        return {
-            mint,
+        const transactionSignature = yield (0, spl_token_1.mintTo)(connection, ownerKeyPair, mint, tokenAccount.address, ownerKeyPair, amount);
+        return Promise.resolve({
+            mint: mint,
             tokenAccount: tokenAccount.address,
-            transactionSignature
-        };
+            transactionSignature: transactionSignature
+        });
     });
 }
