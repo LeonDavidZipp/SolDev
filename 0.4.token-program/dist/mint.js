@@ -9,25 +9,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const web3_js_1 = require("@solana/web3.js");
 const spl_token_1 = require("@solana/spl-token");
-const connection = new web3_js_1.Connection((0, web3_js_1.clusterApiUrl)('devnet'), 'confirmed');
-function main() {
+function newMint(connection, ownerKeyPair) {
     return __awaiter(this, void 0, void 0, function* () {
-        // payer && owner keypair of minting account
-        const keys = web3_js_1.Keypair.generate();
-        yield connection.requestAirdrop(keys.publicKey, 2);
-        console.log(`Generated mint account with public address: ${keys.publicKey.toBase58()}`);
-        // minting account
-        const mint = yield (0, spl_token_1.createMint)(connection, keys, // payer
-        keys.publicKey, // mint authority
-        keys.publicKey, // freeze authority
-        10 // digits
+        const mint = yield (0, spl_token_1.createMint)(connection, ownerKeyPair, // payer
+        ownerKeyPair.publicKey, // mint authority
+        ownerKeyPair.publicKey, // freeze authority
+        10 // digits of token
         );
         // token account (associated with minting account)
-        const tokenAccount = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, keys, // payer
+        const tokenAccount = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, ownerKeyPair, // payer
         mint, // mint account
-        keys.publicKey);
+        ownerKeyPair.publicKey);
+        // const tokenAccount = await createAssociatedTokenAccount(
+        //     connection,
+        //     ownerKeyPair,
+        //     mint,
+        //     ownerKeyPair.publicKey
+        // )
+        const transactionSignature = yield (0, spl_token_1.mintTo)(connection, ownerKeyPair, mint, tokenAccount.address, ownerKeyPair, 100);
+        return {
+            mint,
+            tokenAccount: tokenAccount.address,
+            transactionSignature
+        };
     });
 }
-main();
