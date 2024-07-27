@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.newMint = newMint;
 const spl_token_1 = require("@solana/spl-token");
 function newMint(connection, ownerKeyPair, decimals, amount) {
     return __awaiter(this, void 0, void 0, function* () {

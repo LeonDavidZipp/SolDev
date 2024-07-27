@@ -2,9 +2,9 @@
   "name": "0.4.token-program",
   "version": "1.0.0",
   "description": "Exercise 0.4 of the soldev course",
-  "main": "dist/tp.js",
+  "main": "dist/main.js",
   "bin": {
-    "tp": "dist/tp.js"
+    "tp": "dist/main.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -21,8 +21,10 @@
   },
   "homepage": "https://github.com/LeonDavidZipp/SolDev#readme",
   "dependencies": {
+    "@solana-developers/helpers": "^2.4.0",
     "@solana/spl-token": "^0.4.8",
     "@solana/web3.js": "^1.95.1",
+    "bs58": "^6.0.0",
     "tsx": "^4.16.2",
     "typescript": "^5.5.4"
   }

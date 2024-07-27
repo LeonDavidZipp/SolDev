@@ -7,7 +7,7 @@ interface MintResult {
     transactionSignature: string;
 }
 
-async function newMint(
+export async function newMint(
     connection: Connection,
     ownerKeyPair: Keypair,
     decimals: number,
