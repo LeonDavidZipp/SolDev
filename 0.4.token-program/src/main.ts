@@ -1,33 +1,51 @@
-import { Keypair, Connection, clusterApiUrl, BlockheightBasedTransactionConfirmationStrategy, LAMPORTS_PER_SOL } from '@solana/web3.js'
+import {
+    Transaction, Connection,
+    LAMPORTS_PER_SOL, clusterApiUrl, SystemProgram
+} from '@solana/web3.js';
+import { PhantomProvider } from './interfaces';
 import { getExplorerLink } from '@solana-developers/helpers';
-import bs58 from 'bs58';
-import fs from 'fs';
-import path from 'path';
-import { newMint } from './mint'
 
 const connection = new Connection(clusterApiUrl('testnet'), 'confirmed');
 
-export function getKeypairFromFile(filePath: string): Keypair {
-    const fileContent = fs.readFileSync(filePath, 'utf8');
-    const { privateKey } = JSON.parse(fileContent);
-    const secretKey = Uint8Array.from(privateKey);
-    return Keypair.fromSecretKey(secretKey);
+// Function to connect to Phantom wallet
+async function ConnectPhantom(): Promise<PhantomProvider | undefined> {
+    const solana = (window as any).solana;
+    if (solana) {
+        try {
+            const response = await solana.connect();
+            console.log(response.publicKey.toString());
+            return response;
+        } catch (e) {
+            console.error(e);
+        }
+    } else {
+        console.error('Phantom wallet not found');
+        return undefined;
+    }
 }
 
-async function main() {
-    const keys = await getKeypairFromFile(path.resolve(__dirname, '../../keypair.json'));
-    console.log(`✅ Generated private key: ${bs58.encode(keys.secretKey)}`);
-    console.log(`✅ Generated public key: ${keys.publicKey.toBase58()}`);
-
-    const mint = await newMint(
-        connection,
-        keys,
-        2,
-        1000
-    );
-    console.log(`✅ Mint: ${getExplorerLink("address", mint.mint.toString(), "testnet")}`);
-    console.log(`✅ Token Account: ${getExplorerLink("address", mint.tokenAccount.toString(), "testnet")}`);
-    console.log(`✅ Transaction: ${getExplorerLink("tx", mint.transactionSignature, "testnet")}`);
+// Function to sign a transaction
+async function SignTx() {
+    const provider = await ConnectPhantom();
+    console.log(provider);
+    if (provider && provider.publicKey) {
+        console.log(`Connected to cluster:`);
+        const tx = new Transaction().add(
+            SystemProgram.transfer({
+                fromPubkey: provider.publicKey,
+                toPubkey: provider.publicKey,
+                lamports: 0.5 * LAMPORTS_PER_SOL
+            })
+        );
+        console.log(`Connected to cluster2:`);
+        const signedTx = await provider.signTransaction(tx);
+        const serializedTx = signedTx.serialize();
+        const signature = await connection.sendRawTransaction(serializedTx);
+        console.log(`Transaction sent: ${getExplorerLink("tx", signature, "testnet")}`);
+    } else {
+        console.error('Phantom wallet not found');
+    }
 }
 
-main();
+// (window as any).ConnectPhantom = ConnectPhantom;
+// (window as any).SignTx = SignTx;

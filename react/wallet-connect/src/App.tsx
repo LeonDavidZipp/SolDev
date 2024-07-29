@@ -1,10 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { ConnectPhantom } from './functions'
+import { PhantomProvider } from './interfaces'
 
 function App() {
-  const [count, setCount] = useState(0)
+    const [count, setCount] = useState(0)
+    const [wallet, setProvider] = useState<PhantomProvider | undefined>();
+
+    useEffect(() => {
+        const provider = await ConnectPhantom();
+
+        if (provider) setProvider(provider);
+        else setProvider(undefined);
+    }, []);
 
   return (
     <>
@@ -16,11 +26,21 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
+      <h1>Please connect your Wallet</h1>
+          <div className="card">
+              <div className="buttonContainer">
+                  {wallet == "" && (<button onClick={() => setProvider((wallet) => {
+        })}>
+          Connect Wallet
+        </button>)}
+                  {wallet != "" &&
+                      (<><button onClick={() => setCount((count) => count + 1)}>
+          Disconnect Wallet
+              </button>
         <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
+        Sign Example Transaction
+                </button></>)}
+                </div>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
