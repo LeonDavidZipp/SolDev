@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import { ConnectPhantom, DisconnectPhantom, GetProvider } from "./functions";
+import { ConnectPhantom, DisconnectPhantom, GetProvider, SignTx } from "./functions";
 import { PhantomProvider } from "./interfaces";
 
 function App() {
@@ -60,7 +60,10 @@ function App() {
                             >
                                 Disconnect Wallet
                             </button>
-                            <button onClick={() => {}}>
+                            <button onClick={async () => {
+                                
+                                await SignTx(provider);
+                            }}>
                                 Sign Example Transaction
                             </button>
                         </>

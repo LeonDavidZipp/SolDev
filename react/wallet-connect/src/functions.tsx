@@ -4,6 +4,7 @@ import {
     Transaction,
     LAMPORTS_PER_SOL,
     clusterApiUrl,
+    PublicKey,
 } from "@solana/web3.js";
 import { getExplorerLink } from "@solana-developers/helpers";
 import { PhantomProvider } from "./interfaces";
@@ -12,7 +13,10 @@ const connection = new Connection(clusterApiUrl("testnet"), "confirmed");
 
 declare global {
     interface Window {
-        solana: any;
+        solana: {
+            connect: () => Promise<{ publicKey: PublicKey }>;
+            provider: PhantomProvider;
+        };
     }
 }
 
@@ -53,8 +57,7 @@ export async function DisconnectPhantom(walletKey: string): Promise<boolean> {
     return false;
 }
 // Function to sign a transaction
-async function SignTx() {
-    const provider = await ConnectPhantom();
+export async function SignTx(provider: PhantomProvider | undefined) {
     console.log(provider);
     if (provider && provider.publicKey) {
         console.log(`Connected to cluster:`);
