@@ -2,17 +2,28 @@ import { useState, useEffect } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import { ConnectPhantom, DisconnectPhantom, GetProvider, SignTx } from "./functions";
+import {
+    CheckConnected,
+    ConnectPhantom,
+    DisconnectPhantom,
+    getProvider,
+    SignTx,
+} from "./functions";
 import { PhantomProvider } from "./interfaces";
 
 function App() {
+    const [text, setText] = useState<string>("Please connect Wallet");
     const [provider, setProvider] = useState<PhantomProvider | undefined>(
-        undefined
+        getProvider()
     );
-    const [walletKey, setWalletKey] = useState<string>("");
+    const [pubKey, setPubKey] = useState<string>("");
+    const [isConnected, setIsConnected] = useState<boolean>(
+        CheckConnected(provider)
+    ); // New state to track connection status
 
     useEffect(() => {
-        const provider = GetProvider();
+        const provider = getProvider();
+        console.log("provider", provider);
 
         if (provider) {
             setProvider(provider);
@@ -20,6 +31,39 @@ function App() {
             setProvider(undefined);
         }
     }, []);
+
+    useEffect(() => {
+        // Store user's public key once they connect
+        provider?.on("connect", (publicKey) => {
+            setPubKey(publicKey);
+            setIsConnected(true);
+        });
+
+        // Forget user's public key once they disconnect
+        provider?.on("disconnect", () => {
+            setPubKey("");
+            setIsConnected(false);
+        });
+
+        provider?.on("accountChanged", (publicKey) => {
+            if (publicKey !== "") {
+                setPubKey(publicKey);
+                setIsConnected(true);
+                console.log(`Switched to account ${publicKey.toBase58()}`);
+            } else {
+                // Attempt to reconnect to Phantom
+                provider?.connect().catch((error) => {
+                    console.log("Failed to reconnect:", error);
+                });
+            }
+        });
+    }, [provider]);
+
+    // debug
+    // useEffect(() => {
+    //     console.log("is connected", isConnected);
+    //     console.log("pubKey", pubKey);
+    // }, [isConnected]);
 
     return (
         <>
@@ -35,35 +79,48 @@ function App() {
                     />
                 </a>
             </div>
-            <h1>Please connect your Wallet</h1>
+            <h1>{text}</h1>
             <div className="card">
+                <p className="keyField">
+                    {isConnected ? pubKey : "Not connected"}
+                </p>
                 <div className="buttonContainer">
-                    {walletKey == "" && (
+                    {!isConnected && (
                         <button
+                            className="connectButton"
                             onClick={async () => {
-                                const publicKey = await ConnectPhantom();
-                                setWalletKey(publicKey);
+                                ConnectPhantom(
+                                    provider,
+                                    setPubKey,
+                                    setIsConnected
+                                );
+                                setText("Connected to Wallet:");
                             }}
                         >
                             Connect Wallet
                         </button>
                     )}
-                    {walletKey != "" && (
+                    {isConnected && (
                         <>
                             <button
+                                className="disconnectButton"
                                 onClick={async () => {
-                                    const success = await DisconnectPhantom(
-                                        walletKey
+                                    DisconnectPhantom(
+                                        provider,
+                                        setIsConnected,
+                                        setPubKey
                                     );
-                                    if (success) setWalletKey("");
+                                    setText("Disconnected from Wallet");
                                 }}
                             >
                                 Disconnect Wallet
                             </button>
-                            <button onClick={async () => {
-                                
-                                await SignTx(provider);
-                            }}>
+                            <button
+                                className="signTxButton"
+                                onClick={async () => {
+                                    await SignTx(provider);
+                                }}
+                            >
                                 Sign Example Transaction
                             </button>
                         </>

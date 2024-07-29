@@ -1,11 +1,13 @@
 import {
-    Transaction, Connection,
-    LAMPORTS_PER_SOL, clusterApiUrl, SystemProgram
-} from '@solana/web3.js';
-import { PhantomProvider } from './interfaces';
-import { getExplorerLink } from '@solana-developers/helpers';
+    Transaction,
+    Connection,
+    LAMPORTS_PER_SOL,
+    clusterApiUrl,
+    SystemProgram,
+} from "@solana/web3.js";
+import { PhantomProvider } from "./interfaces";
 
-const connection = new Connection(clusterApiUrl('testnet'), 'confirmed');
+const connection = new Connection(clusterApiUrl("testnet"), "confirmed");
 
 // Function to connect to Phantom wallet
 async function ConnectPhantom(): Promise<PhantomProvider | undefined> {
@@ -19,7 +21,7 @@ async function ConnectPhantom(): Promise<PhantomProvider | undefined> {
             console.error(e);
         }
     } else {
-        console.error('Phantom wallet not found');
+        console.error("Phantom wallet not found");
         return undefined;
     }
 }
@@ -34,16 +36,16 @@ async function SignTx() {
             SystemProgram.transfer({
                 fromPubkey: provider.publicKey,
                 toPubkey: provider.publicKey,
-                lamports: 0.5 * LAMPORTS_PER_SOL
+                lamports: 0.5 * LAMPORTS_PER_SOL,
             })
         );
         console.log(`Connected to cluster2:`);
         const signedTx = await provider.signTransaction(tx);
         const serializedTx = signedTx.serialize();
         const signature = await connection.sendRawTransaction(serializedTx);
-        console.log(`Transaction sent: ${getExplorerLink("tx", signature, "testnet")}`);
+        // console.log(`Transaction sent: ${getExplorerLink("tx", signature, "testnet")}`);
     } else {
-        console.error('Phantom wallet not found');
+        console.error("Phantom wallet not found");
     }
 }
 

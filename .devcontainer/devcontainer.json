@@ -27,12 +27,12 @@
                 "esbenp.prettier-vscode",
 
                 // react
-                "dbaeumer.vscode-eslint",
+                // "dbaeumer.vscode-eslint",
                 "dsznajder.es7-react-js-snippets",
                 "ms-vscode.vscode-typescript-next",
                 "infeng.vscode-react-typescript"
             ]
         }
     },
-    "postCreateCommand": "echo 'Post create command executed in the container.'",
+    "postCreateCommand": "echo 'Post create command executed in the container.'"
 }
