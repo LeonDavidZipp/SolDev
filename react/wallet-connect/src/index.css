@@ -26,7 +26,7 @@ body {
     margin: 0;
     display: flex;
     place-items: center;
-    min-width: 320px;
+    min-width: 400px;
     min-height: 100vh;
 }
 
@@ -69,9 +69,31 @@ button:focus-visible {
 
 .keyField {
     padding: 0.6em 1.2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
     font-size: 1em;
     font-weight: 500;
     border-radius: 8px;
     color: #ffffff;
     background-color: #1a1a1a;
+    width: 100%; /* Set a fixed width or a percentage */
+    max-width: 600px; /* Optional: Set a max-width to limit the container size */
+    box-sizing: border-box; /* Ensure padding is included in the width */
+}
+
+.textContent {
+    flex-grow: 1;
+    text-align: center;
+    overflow: hidden; /* Prevent overflow */
+    text-overflow: ellipsis; /* Add ellipsis for overflow text */
+    white-space: nowrap; /* Prevent text wrapping */
+    padding-right: 2em;
+}
+
+.copyButton {
+    position: absolute;
+    right: 0;
+    margin-left: 10px;
 }

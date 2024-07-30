@@ -3,7 +3,7 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import {
-    CheckConnected,
+    // CheckConnected,
     ConnectPhantom,
     DisconnectPhantom,
     getProvider,
@@ -12,14 +12,24 @@ import {
 import { PhantomProvider } from "./interfaces";
 
 function App() {
-    const [text, setText] = useState<string>("Please connect Wallet");
     const [provider, setProvider] = useState<PhantomProvider | undefined>(
         getProvider()
     );
-    const [pubKey, setPubKey] = useState<string>("");
     const [isConnected, setIsConnected] = useState<boolean>(
-        CheckConnected(provider)
-    ); // New state to track connection status
+        () => {
+        return !!provider;
+    }); // New state to track connection status
+    const [text, setText] = useState<string>(() => {
+        return isConnected ? "Wallet is connected" : "Wallet is not connected";
+    });
+    const [pubKey, setPubKey] = useState<string>(() => {
+        if (!provider
+            || !provider.publicKey) {
+            console.log("provider not there");
+            return "";
+        }
+        return isConnected ? provider?.publicKey?.toString() : "";
+    });
 
     useEffect(() => {
         const provider = getProvider();
@@ -31,6 +41,8 @@ function App() {
             setProvider(undefined);
         }
     }, []);
+
+    
 
     useEffect(() => {
         // Store user's public key once they connect
@@ -82,7 +94,15 @@ function App() {
             <h1>{text}</h1>
             <div className="card">
                 <p className="keyField">
-                    {isConnected ? pubKey : "Not connected"}
+                    <span className="textContent">{pubKey}</span>
+                    {isConnected && (<button className="copyButton"
+                        onClick={() => {
+                            navigator.clipboard.writeText(pubKey);
+                        }}
+                        style={{ marginLeft: "10px" }}
+                    >
+                        📋
+                    </button>)}
                 </p>
                 <div className="buttonContainer">
                     {!isConnected && (

@@ -18,6 +18,7 @@ export const getProvider = (): PhantomProvider | undefined => {
         const anyWindow = window as any;
         const provider = anyWindow.phantom?.solana;
 
+        console.log("provider found");
         if (provider?.isPhantom) {
             return provider;
         }
