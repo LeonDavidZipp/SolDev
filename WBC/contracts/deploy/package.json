@@ -1,0 +1,19 @@
+{
+    "name": "deploy",
+    "version": "1.0.0",
+    "description": "simple deploy script",
+    "main": "deploy.ts",
+    "scripts": {
+        "test": "echo hi"
+    },
+    "author": "lzipp",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/node": "^22.0.0",
+        "@types/web3": "^1.0.20",
+        "typescript": "^5.5.4"
+    },
+    "dependencies": {
+        "dotenv": "^16.4.5"
+    }
+}
