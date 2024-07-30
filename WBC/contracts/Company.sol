@@ -24,8 +24,11 @@ contract Company {
         uint16      disputeCount;
     }
 
+    /** Name of company */
     bytes32     public companyName;
+    /** Address of company */
     Address     public companyAddress;
+    /** List of complaints */
     Complaint[] public complaints;
 
     /**
@@ -54,6 +57,7 @@ contract Company {
     );
 
     /**
+     * Constructor for Company contract
      * @param _name - name of company (e.g., "ExampleCompany")
      * @param _street - street address of company (e.g., "1234 Example Street")
      * @param _city - city of company (e.g., "Example Town")
@@ -62,6 +66,7 @@ contract Company {
      * @param _country - country of company (e.g., "Example Country")
      * @param _ctype - type of complaint (e.g., "Harassment")
      * @param _text - text of complaint (e.g., "I was harassed by a coworker on a conference call. Management did nothing.")
+     * @param _supportingDocuments - array of supporting documents (e.g., ["example.com/document1", "example.com/document2"])
      */
     constructor(
         bytes32 _name,
@@ -110,6 +115,7 @@ contract Company {
         require(_ctype != "", "Complaint type cannot be empty.");
         require(keccak256(bytes(_text)) != keccak256(bytes("")), "Complaint text cannot be empty.");
         require(_supportingDocuments.length <= 10, "Supporting documents cannot exceed 10.");
+
         complaints.push(Complaint(
             {
                 id : complaints.length,
@@ -120,6 +126,7 @@ contract Company {
                 disputeCount: 0
             }
         ));
+
         emit complaintAdded(
             companyName,
             _ctype,
@@ -143,6 +150,7 @@ contract Company {
      */
     function getComplaint(uint _complaintId) public view returns (Complaint memory) {
         require (_complaintId < complaints.length, "Complaint does not exist.");
+
         return complaints[_complaintId];
     }
 
@@ -152,7 +160,9 @@ contract Company {
      */
     function witnessComplaint(uint _id) public returns (uint) {
         require (_id < complaints.length, "Complaint does not exist.");
+
         complaints[_id].witnessCount++;
+
         return complaints[_id].witnessCount;
     }
 
@@ -162,7 +172,9 @@ contract Company {
      */
     function disputeComplaint(uint _id) public returns (uint) {
         require (_id < complaints.length, "Complaint does not exist.");
+
         complaints[_id].disputeCount++;
+
         return complaints[_id].disputeCount;
     }
 }
