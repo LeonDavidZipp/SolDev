@@ -2,57 +2,136 @@
 pragma solidity >=0.7.0;
 
 contract Company {
+    /**
+     * Simple struct for storing a company address
+     */
     struct Address {
         bytes32 street;
         bytes32 city;
-        uint16  zip_code;
+        uint16  zipCode;
         bytes32 state;
         bytes32 country;
     }
+    /**
+     * Simple struct for storing a complaint
+     */
     struct Complaint {
+        uint    id;
         bytes32 ctype;
         string  text;
+        uint16  witnessCount;
     }
 
-    bytes32     public company_name;
-    Address     public company_address;
+    bytes32     public companyName;
+    Address     public companyAddress;
     Complaint[] public complaints;
 
+    /**
+     * Emits when this is created
+     * @param _company - the address of the company contract that is being created (this)
+     * @param _name - name of the company (e.g., "ExampleCompany")
+     * @param _address - the address of the company contract that is being created (this)
+     */
     event companyCreated(
         address indexed _company,
         bytes32 _name,
         address indexed _address
     );
+    /**
+     * Emits when new complaint is added
+     * @param _company - name of company
+     * @param _ctype - type of complaint (e.g., "harrassment")
+     * @param _text - text of complaint (maximum length of 500 characters)
+     * @param _count - number of total number of complaints
+     */
     event complaintAdded(
-        address indexed _company,
+        bytes32 _company,
         bytes32 _ctype,
-        string  _text
+        string  _text,
+        uint256 _count
     );
 
+    /**
+     * @param _name - name of company (e.g., "ExampleCompany")
+     * @param _street - street address of company (e.g., "1234 Example Street")
+     * @param _city - city of company (e.g., "Example Town")
+     * @param _zipCode - zip code of company (e.g., "12345")
+     * @param _state - state of company (e.g., "Example State")
+     * @param _country - country of company (e.g., "Example Country")
+     * @param _ctype - type of complaint (e.g., "Harassment")
+     * @param _text - text of complaint (e.g., "I was harassed by a coworker on a conference call. Management did nothing.")
+     */
     constructor(
         bytes32 _name,
         bytes32 _street,
         bytes32 _city,
-        uint16 _zip_code,
+        uint16 _zipCode,
         bytes32 _state,
-        bytes32 country,
+        bytes32 _country,
         bytes32 _ctype,
         string memory _text
-        ) {
-            company_name = _name;
-            company_address = Address({
-                street : _street,
-                city : _city,
-                zip_code : _zip_code,
-                state : _state,
-                country : country
-            });
+    ) {
+        companyName = _name;
+        companyAddress = Address({
+            street : _street,
+            city : _city,
+            zipCode : _zipCode,
+            state : _state,
+            country : _country
+        });
 
-            add_complaint(_ctype, _text);
-        }
+        addComplaint(_ctype, _text);
+    }
 
-    function add_complaint(bytes32 _ctype, string memory _text) public {
+    /** 
+     * Add a complaint to the list of complaints
+     * @param _ctype - type of complaint (e.g., "harrassment")
+     * @param _text - text of complaint (maximum length of 500 characters)
+     */
+    function addComplaint(
+        bytes32 _ctype,
+        string memory _text
+    ) public {
         require(bytes(_text).length <= 500, "Complaint exceeds maximum length of 100 characters.");
-        complaints.push(Complaint({ctype : _ctype, text : _text}));
+        complaints.push(Complaint(
+            {
+                id : complaints.length,
+                ctype : _ctype,
+                text : _text,
+                witnessCount: 0
+            }
+        ));
+        emit complaintAdded(
+            companyName,
+            _ctype,
+            _text,
+            complaints.length
+        );
+    }
+
+    /**
+     * Returns all complaints
+     * @return Complaint[] - list of all complaints
+     */
+    function getComplaints() public view returns  (Complaint[] memory) {
+        return complaints;
+    }
+
+    /**
+     * Returns specific complaint
+     * @param _complaintId - id of complaint (e.g., "0")
+     * @return Complaint - specific complaint
+     */
+    function getComplaint(uint _complaintId) public view returns (Complaint memory) {
+        return complaints[_complaintId];
+    }
+
+    /**
+     * Allows different valid addresses to support a complaint
+     * @param _id - id of complaint
+     */
+    function witnessComplaint(uint _id) public returns (uint) {
+        complaints[_id].witnessCount++;
+        return complaints[_id].witnessCount;
     }
 }
