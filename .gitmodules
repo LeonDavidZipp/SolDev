@@ -1,0 +1,3 @@
+[submodule "WBC/smarts/lib/forge-std"]
+	path = WBC/smarts/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
