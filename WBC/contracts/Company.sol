@@ -83,6 +83,16 @@ contract Company {
         addComplaint(_ctype, _text);
     }
 
+    /**
+     * Returns the company name, address & complaints
+     * @return bytes32 - name of company
+     * @return Address - address of company
+     * @return Complaint[] - list of complaints received
+     */
+    function getCompany() public view returns (bytes32, Address memory, Complaint[] memory) {
+        return (companyName, companyAddress, complaints);
+    }
+
     /** 
      * Add a complaint to the list of complaints
      * @param _ctype - type of complaint (e.g., "harrassment")
@@ -113,16 +123,17 @@ contract Company {
      * Returns all complaints
      * @return Complaint[] - list of all complaints
      */
-    function getComplaints() public view returns  (Complaint[] memory) {
+    function getComplaints() public view returns (Complaint[] memory) {
         return complaints;
     }
 
     /**
      * Returns specific complaint
-     * @param _complaintId - id of complaint (e.g., "0")
+     * @param _complaintId - id of complaint
      * @return Complaint - specific complaint
      */
     function getComplaint(uint _complaintId) public view returns (Complaint memory) {
+        require (_complaintId < complaints.length, "Complaint does not exist.");
         return complaints[_complaintId];
     }
 
@@ -131,6 +142,7 @@ contract Company {
      * @param _id - id of complaint
      */
     function witnessComplaint(uint _id) public returns (uint) {
+        require (_id < complaints.length, "Complaint does not exist.");
         complaints[_id].witnessCount++;
         return complaints[_id].witnessCount;
     }
