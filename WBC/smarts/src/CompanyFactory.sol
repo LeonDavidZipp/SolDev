@@ -4,15 +4,15 @@ pragma solidity ^0.8.17;
 import "./Company.sol";
 
 contract CompanyFactory {
-    mapping(bytes32 => address) public companiesCreated;
+    struct CompanyInfo {
+        address companyAddress;
+        bytes32 name;
+    }
 
-    event factoryCreated(
-        address _address
-    );
-    event companyContractDeployed(
-        address _newAddress,
-        bytes32 _company
-    );
+    mapping(bytes32 => CompanyInfo) public companiesCreated;
+
+    event factoryCreated(address _address);
+    event companyContractDeployed(address _newAddress, bytes32 _company);
 
     /**
      * Constructor for CompanyFactory contract
@@ -45,21 +45,13 @@ contract CompanyFactory {
         string memory _text,
         string[10] memory _supportingDocuments
     ) public returns (address) {
-        require(companiesCreated[_name] == address(0), "Contract exists");
+        bytes32 key = keccak256(abi.encodePacked(_name, _street, _city, _zipCode, _country));
+        require(companiesCreated[key].companyAddress == address(0), "Contract exists");
 
-        Company newContract = new Company(
-            _name,
-            _street,
-            _city,
-            _zipCode,
-            _state,
-            _country,
-            _ctype,
-            _text,
-            _supportingDocuments
-        );
+        Company newContract =
+            new Company(_name, _street, _city, _zipCode, _state, _country, _ctype, _text, _supportingDocuments);
 
-        companiesCreated[_name] = address(newContract);
+        companiesCreated[key] = CompanyInfo({companyAddress: address(newContract), name: _name});
 
         emit companyContractDeployed(address(newContract), _name);
 
