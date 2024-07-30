@@ -6,20 +6,22 @@ contract Company {
      * Simple struct for storing a company address
      */
     struct Address {
-        bytes32 street;
-        bytes32 city;
-        uint16  zipCode;
-        bytes32 state;
-        bytes32 country;
+        bytes32     street;
+        bytes32     city;
+        uint16      zipCode;
+        bytes32     state;
+        bytes32     country;
     }
     /**
      * Simple struct for storing a complaint
      */
     struct Complaint {
-        uint    id;
-        bytes32 ctype;
-        string  text;
-        uint16  witnessCount;
+        uint        id;
+        bytes32     ctype;
+        string      text;
+        string[10]  supportingDocuments;
+        uint16      witnessCount;
+        uint16      disputeCount;
     }
 
     bytes32     public companyName;
@@ -69,7 +71,8 @@ contract Company {
         bytes32 _state,
         bytes32 _country,
         bytes32 _ctype,
-        string memory _text
+        string memory _text,
+        string[10] memory _supportingDocuments
     ) {
         companyName = _name;
         companyAddress = Address({
@@ -80,7 +83,7 @@ contract Company {
             country : _country
         });
 
-        addComplaint(_ctype, _text);
+        addComplaint(_ctype, _text, _supportingDocuments);
     }
 
     /**
@@ -100,15 +103,21 @@ contract Company {
      */
     function addComplaint(
         bytes32 _ctype,
-        string memory _text
+        string memory _text,
+        string[10] memory _supportingDocuments
     ) public {
         require(bytes(_text).length <= 500, "Complaint exceeds maximum length of 100 characters.");
+        require(_ctype != "", "Complaint type cannot be empty.");
+        require(keccak256(bytes(_text)) != keccak256(bytes("")), "Complaint text cannot be empty.");
+        require(_supportingDocuments.length <= 10, "Supporting documents cannot exceed 10.");
         complaints.push(Complaint(
             {
                 id : complaints.length,
                 ctype : _ctype,
                 text : _text,
-                witnessCount: 0
+                supportingDocuments : _supportingDocuments,
+                witnessCount: 0,
+                disputeCount: 0
             }
         ));
         emit complaintAdded(
@@ -145,5 +154,15 @@ contract Company {
         require (_id < complaints.length, "Complaint does not exist.");
         complaints[_id].witnessCount++;
         return complaints[_id].witnessCount;
+    }
+
+    /**
+     * Allows different valid addresses to dispute a complaint
+     * @param _id - id of complaint
+     */
+    function disputeComplaint(uint _id) public returns (uint) {
+        require (_id < complaints.length, "Complaint does not exist.");
+        complaints[_id].disputeCount++;
+        return complaints[_id].disputeCount;
     }
 }
